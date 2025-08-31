@@ -3,58 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logística en Eventos Educativos - MINUME XVI</title>
+    <title>🏁 Ruta Logística MINUME XVI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-
-        .fade-in { animation: fadeIn 0.5s ease-in; }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .pulse-icon { animation: pulse 2s infinite; }
+        
+        .pulse-icon {
+            animation: pulse 2s infinite;
+        }
+        
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-
-        .correct-answer { animation: correctFlash 0.6s ease-in-out; }
+        
+        .correct-answer {
+            animation: correctFlash 0.6s ease-in-out;
+        }
+        
         @keyframes correctFlash {
             0% { background-color: rgb(34, 197, 94); }
             100% { background-color: rgb(21, 128, 61); }
         }
+        
+        .score-bounce {
+            animation: scoreBounce 0.5s ease-out;
+        }
+        
+        @keyframes scoreBounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .option-btn {
+            min-height: 44px;
+            font-size: 16px;
+        }
+        
+        .option-btn:focus {
+            outline: 3px solid #fbbf24;
+            outline-offset: 2px;
+        }
+        
+        @media (max-width: 640px) {
+            .option-btn {
+                font-size: 18px;
+                min-height: 48px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-900 mb-2">Logística en Eventos Educativos</h1>
-            <h2 class="text-2xl font-semibold text-indigo-700">MINUME XVI</h2>
-            <div class="mt-4 bg-white rounded-full px-6 py-2 inline-block shadow-md">
-                <span class="text-sm font-medium text-gray-600">Nivel <span id="currentLevel">1</span> de 7</span>
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-2">🏁 Ruta Logística MINUME XVI</h1>
+            <p class="text-lg text-indigo-700 mb-4">Esta es tu pista. 7 vueltas, 7 principios.</p>
+            
+            <!-- Score and Progress -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-4">
+                <div class="bg-white rounded-full px-6 py-2 shadow-md">
+                    <span class="text-sm font-medium text-gray-600">Vuelta <span id="currentLevel">1</span> de 7</span>
+                </div>
+                <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full px-6 py-2 shadow-md">
+                    <span class="text-sm font-bold">🏆 <span id="currentScore">0</span>/100 pts</span>
+                </div>
+            </div>
+            
+            <!-- Progress Message -->
+            <div id="progressMessage" class="text-sm text-indigo-600 font-medium mb-2">
+                ¡Prepárate para la primera vuelta!
             </div>
         </div>
 
         <!-- Progress Bar -->
-        <div class="mb-8">
-            <div class="bg-white rounded-full h-3 shadow-inner">
-                <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500" style="width: 14.28%"></div>
+        <div class="mb-6">
+            <div class="bg-white rounded-full h-4 shadow-inner">
+                <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-purple-600 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2" style="width: 14.28%">
+                    <span class="text-xs text-white font-bold" id="progressPercent">14%</span>
+                </div>
             </div>
         </div>
 
         <!-- Game Content -->
-        <div id="gameContent" class="bg-white rounded-2xl shadow-xl p-8 fade-in">
+        <div id="gameContent" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 fade-in">
             <!-- Level content will be inserted here -->
         </div>
 
+        <!-- Feedback Section -->
+        <div id="feedbackSection" class="mt-6 hidden">
+            <div id="feedbackContent" class="bg-white rounded-xl shadow-lg p-6 text-center">
+                <!-- Feedback content will be inserted here -->
+            </div>
+        </div>
+
         <!-- Navigation Buttons -->
-        <div class="mt-8 text-center">
+        <div class="mt-6 text-center space-x-4">
+            <button id="retryBtn" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 hidden">
+                🔄 Reintentar Vuelta
+            </button>
             <button id="nextBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" disabled>
-                Siguiente Nivel
+                🏎️ Siguiente Vuelta
             </button>
         </div>
     </div>
@@ -67,16 +127,16 @@
                 icon: "📅",
                 color: "text-blue-600",
                 bgColor: "bg-blue-50",
-                description: "Cada paso se organiza con anticipación. Se definen cronogramas, responsables y recursos con tiempo suficiente para garantizar que los delegados estén en sus salas a tiempo y que cada detalle permita que la parte académica se desarrolle sin interrupciones.",
-                example: "En MINUME XVI, la planificación significa definir cronogramas detallados para cada comisión, asignar responsables específicos para el transporte de delegados, organizar la acreditación con tiempo suficiente y preparar todos los recursos necesarios para que las sesiones académicas fluyan naturalmente.",
-                question: "Un delegado reporta que su comisión no tiene los materiales necesarios 30 minutos antes del inicio. Al investigar, descubres que hubo un malentendido en la comunicación entre equipos. ¿Cuál es la falla más crítica en la planificación que permitió esta situación?",
+                description: "Cada paso se organiza con anticipación para garantizar que los delegados estén en sus salas a tiempo.",
+                question: "Un delegado reporta que su comisión no tiene los materiales necesarios 30 minutos antes del inicio. Al investigar, descubres que hubo un malentendido en la comunicación entre equipos. ¿Cuál es la falla más crítica en la planificación?",
                 options: [
                     "No definir claramente las responsabilidades específicas de cada equipo en el cronograma",
                     "No tener suficientes materiales de respaldo disponibles",
                     "No comunicar los horarios con suficiente anticipación",
                     "No asignar un responsable general para supervisar todas las comisiones"
                 ],
-                correct: 0
+                correct: 0,
+                explanation: "La planificación efectiva requiere responsabilidades claras y específicas para evitar malentendidos."
             },
             {
                 id: 2,
@@ -84,16 +144,16 @@
                 icon: "💬",
                 color: "text-green-600",
                 bgColor: "bg-green-50",
-                description: "La información circula de manera clara entre todos los equipos. Los mensajes se transmiten sin ambigüedades y cada persona recibe lo que necesita para cumplir su función, evitando errores que afecten la percepción del evento.",
-                example: "En MINUME XVI, la comunicación efectiva significa que cada equipo recibe instrucciones claras sobre sus responsabilidades, los delegados conocen exactamente dónde deben estar y cuándo, y la información sobre cambios de sala o actividades llega a tiempo a todos los involucrados sin generar confusión.",
-                question: "Durante MINUME XVI, el equipo de logística informa que una sala ha cambiado de ubicación, pero esta información no llega al equipo de acreditación ni a los delegados. Como resultado, se genera confusión y quejas. ¿Cuál es el principio de comunicación que falló?",
+                description: "La información circula de manera clara entre todos los equipos sin ambigüedades.",
+                question: "Durante MINUME XVI, el equipo de logística informa que una sala ha cambiado de ubicación, pero esta información no llega al equipo de acreditación ni a los delegados. ¿Cuál es el principio de comunicación que falló?",
                 options: [
                     "La información debe fluir únicamente de arriba hacia abajo en la jerarquía",
-                    "La información crítica debe llegar simultáneamente a todos los participantes afectados a través de canales claros y directos",
+                    "La información crítica debe llegar simultáneamente a todos los participantes afectados",
                     "La comunicación debe ser exclusivamente formal y por escrito",
                     "Solo el coordinador general debe manejar la comunicación de crisis"
                 ],
-                correct: 1
+                correct: 1,
+                explanation: "En logística, la información crítica debe llegar a todos los afectados simultáneamente para evitar confusión."
             },
             {
                 id: 3,
@@ -101,16 +161,16 @@
                 icon: "⚙️",
                 color: "text-purple-600",
                 bgColor: "bg-purple-50",
-                description: "Los equipos actúan en sincronía bajo una misma dirección. Las acciones se alinean y los recursos se utilizan de manera organizada para que todo avance sin interrupciones y los delegados puedan concentrarse en su rol académico.",
-                example: "En MINUME XVI, la coordinación asegura que mientras un equipo prepara las salas de comisión, otro organiza los materiales de trabajo, y simultáneamente el equipo de acreditación procesa las llegadas de delegados. Todo funciona como un engranaje perfecto donde cada acción complementa a las demás.",
-                question: "El equipo de logística de salas termina la preparación de una comisión, pero el equipo técnico aún no ha instalado el equipo audiovisual, mientras que el equipo de acreditación ya está dirigiendo delegados hacia esa sala. ¿Cuál es la causa más probable de esta descoordinación?",
+                description: "Los equipos actúan en sincronía bajo una misma dirección como un engranaje perfecto.",
+                question: "El equipo de logística termina la preparación de una sala, pero el equipo técnico aún no ha instalado el equipo audiovisual, mientras que acreditación ya dirige delegados hacia esa sala. ¿Cuál es la causa más probable?",
                 options: [
-                    "Falta de un cronograma maestro que establezca dependencias secuenciales entre las tareas de diferentes equipos",
+                    "Falta de un cronograma maestro que establezca dependencias secuenciales entre tareas",
                     "Insuficiente personal en el equipo técnico",
-                    "Falta de comunicación entre los coordinadores de cada equipo",
+                    "Falta de comunicación entre coordinadores",
                     "Ausencia de un sistema de verificación de tareas completadas"
                 ],
-                correct: 0
+                correct: 0,
+                explanation: "La coordinación requiere un cronograma maestro que defina qué debe completarse antes de qué."
             },
             {
                 id: 4,
@@ -118,16 +178,16 @@
                 icon: "🔍",
                 color: "text-orange-600",
                 bgColor: "bg-orange-50",
-                description: "Los riesgos se identifican antes de que ocurran. Cada posible situación cuenta con un plan alterno que permite mantener la continuidad del evento, evitando que un error logístico se note de inmediato y afecte la experiencia académica.",
-                example: "En MINUME XVI, la previsión significa tener salas de respaldo si hay problemas técnicos, personal adicional para acreditación en caso de alta demanda, equipos de sonido de emergencia, y planes específicos para mantener las sesiones académicas funcionando sin importar las circunstancias imprevistas.",
-                question: "Análisis de escenario: Es viernes por la noche y el pronóstico del tiempo indica 80% de probabilidad de lluvia intensa para el sábado, día de inauguración de MINUME XVI. Las actividades de apertura están programadas en un espacio semi-abierto. ¿Cuál sería la aplicación más efectiva del principio de previsión?",
+                description: "Los riesgos se identifican antes de que ocurran con planes alternos listos.",
+                question: "Es viernes por la noche y hay 80% de probabilidad de lluvia intensa para el sábado, día de inauguración. Las actividades están programadas en un espacio semi-abierto. ¿Cuál es la aplicación más efectiva de la previsión?",
                 options: [
                     "Esperar hasta el sábado temprano para tomar una decisión basada en el clima real",
-                    "Activar inmediatamente el plan de contingencia, reubicando las actividades y comunicando los cambios esa misma noche",
+                    "Activar inmediatamente el plan de contingencia, reubicando y comunicando los cambios esa noche",
                     "Mantener el plan original pero conseguir paraguas para los asistentes",
-                    "Posponer la decisión hasta consultar con todos los coordinadores el sábado por la mañana"
+                    "Posponer la decisión hasta consultar con todos los coordinadores el sábado"
                 ],
-                correct: 1
+                correct: 1,
+                explanation: "La previsión efectiva actúa antes de que el problema ocurra, no después."
             },
             {
                 id: 5,
@@ -135,16 +195,16 @@
                 icon: "⏰",
                 color: "text-red-600",
                 bgColor: "bg-red-50",
-                description: "Los horarios se cumplen y el tiempo se respeta. La puntualidad marca el ritmo de las actividades y mantiene la agenda en orden, permitiendo que todo fluya con naturalidad y los delegados puedan concentrarse en su experiencia académica.",
-                example: "En MINUME XVI, la puntualidad significa que la acreditación funciona sin retrasos, las comisiones inician puntualmente, los oradores respetan sus tiempos asignados y los delegados pueden confiar en que cada actividad respetará los tiempos establecidos, creando un ambiente de confianza y profesionalismo.",
-                question: "Caso de estudio: Una comisión de MINUME XVI tiene programado iniciar a las 14:00. A las 13:55, solo han llegado 60% de los delegados esperados debido a un error en la información de ubicación de salas que se envió esa mañana. El coordinador debe decidir entre: iniciar puntualmente con los presentes o esperar 10 minutos más. ¿Cuál es el análisis más completo desde la perspectiva de puntualidad sistémica?",
+                description: "Los horarios se cumplen y el tiempo se respeta para mantener la credibilidad.",
+                question: "Una comisión debe iniciar a las 14:00. A las 13:55, solo han llegado 60% de los delegados debido a un error en la información de ubicación. ¿Cuál es el análisis más completo desde la puntualidad sistémica?",
                 options: [
                     "Iniciar puntualmente para mantener la credibilidad del cronograma y no penalizar a quienes llegaron a tiempo",
-                    "Esperar 10 minutos para maximizar la participación, ya que el contenido es más importante que el horario",
-                    "Iniciar puntualmente pero repetir los primeros 10 minutos cuando lleguen los demás",
-                    "Consultar con los delegados presentes antes de tomar la decisión"
+                    "Esperar 10 minutos para maximizar la participación",
+                    "Iniciar puntualmente pero repetir los primeros 10 minutos",
+                    "Consultar con los delegados presentes antes de decidir"
                 ],
-                correct: 0
+                correct: 0,
+                explanation: "La puntualidad sistémica protege la credibilidad del evento y respeta a quienes cumplen los horarios."
             },
             {
                 id: 6,
@@ -152,16 +212,16 @@
                 icon: "🔄",
                 color: "text-teal-600",
                 bgColor: "bg-teal-50",
-                description: "Los cambios se asumen con rapidez y serenidad. La capacidad de reorganizar tareas y espacios asegura que el evento siga su curso sin detenerse, manteniendo la calidad de la experiencia académica incluso ante imprevistos.",
-                example: "En MINUME XVI, la flexibilidad significa poder reubicar rápidamente una comisión si hay problemas en su sala asignada, reorganizar el transporte si cambian las condiciones, o ajustar la acreditación para manejar llegadas inesperadas, todo sin que los delegados perciban interrupciones en su experiencia académica.",
-                question: "Situación crítica: A 2 horas del inicio de MINUME XVI, se descubre que el sistema de aire acondicionado del edificio principal ha fallado y las temperaturas interiores son insoportables. Tienes espacios alternativos disponibles pero con diferente capacidad y distribución. ¿Cuál es la estrategia de flexibilidad más efectiva?",
+                description: "Los cambios se asumen con rapidez manteniendo la calidad de la experiencia.",
+                question: "A 2 horas del inicio, el aire acondicionado del edificio principal falla. Tienes espacios alternativos con diferente capacidad. ¿Cuál es la estrategia de flexibilidad más efectiva?",
                 options: [
-                    "Redistribuir las comisiones por orden de llegada a las salas disponibles",
-                    "Priorizar las comisiones más importantes y cancelar las menos relevantes",
-                    "Reasignar salas basándose en el tamaño de cada delegación y fusionar comisiones pequeñas, comunicando cambios inmediatamente",
+                    "Redistribuir las comisiones por orden de llegada",
+                    "Priorizar las comisiones importantes y cancelar las menos relevantes",
+                    "Reasignar salas basándose en el tamaño de cada delegación y comunicar cambios inmediatamente",
                     "Posponer el evento hasta conseguir las salas originales"
                 ],
-                correct: 2
+                correct: 2,
+                explanation: "La flexibilidad efectiva reorganiza recursos de manera lógica y comunica cambios rápidamente."
             },
             {
                 id: 7,
@@ -169,88 +229,156 @@
                 icon: "📋",
                 color: "text-indigo-600",
                 bgColor: "bg-indigo-50",
-                description: "La experiencia se registra de manera constante. Encuestas, reportes y análisis generan aprendizajes que fortalecen la logística en futuras ediciones, transformando cada MINUME en una oportunidad de mejora continua.",
-                example: "En MINUME XVI, la sistematización significa documentar cada proceso logístico, desde los tiempos de transporte hasta la eficiencia de la acreditación, recopilar feedback de delegados y equipos, y crear reportes detallados que permitan perfeccionar la organización para futuras ediciones del evento.",
-                question: "Evaluación post-evento: Después de MINUME XVI, tienes datos que muestran que el 15% de los delegados llegaron tarde a sus comisiones, el 8% reportó confusión con la señalización, y el tiempo promedio de acreditación fue 12 minutos por persona. ¿Cuál es la aplicación más estratégica de la sistematización?",
+                description: "La experiencia se registra constantemente para generar aprendizajes y mejora continua.",
+                question: "Post-evento: 15% de delegados llegaron tarde, 8% reportó confusión con señalización, tiempo promedio de acreditación fue 12 minutos. ¿Cuál es la aplicación más estratégica de la sistematización?",
                 options: [
-                    "Documentar estos datos como lecciones aprendidas para el próximo evento",
-                    "Crear un análisis de causa raíz para cada problema, desarrollar métricas de mejora específicas y establecer protocolos preventivos",
-                    "Compartir los datos con el equipo organizador para su conocimiento general",
-                    "Comparar estos resultados con eventos similares de otras instituciones"
+                    "Documentar estos datos como lecciones aprendidas",
+                    "Crear análisis de causa raíz, desarrollar métricas de mejora y establecer protocolos preventivos",
+                    "Compartir los datos con el equipo organizador",
+                    "Comparar resultados con eventos similares"
                 ],
-                correct: 1
+                correct: 1,
+                explanation: "La sistematización efectiva analiza causas, crea métricas específicas y establece protocolos de mejora."
             }
         ];
 
         let currentLevelIndex = 0;
         let selectedAnswer = null;
+        let totalScore = 0;
+        let levelScore = 0;
+
+        const progressMessages = [
+            "¡Prepárate para la primera vuelta!",
+            "Planificación ✔️ — siguiente: Comunicación",
+            "Comunicación ✔️ — siguiente: Coordinación", 
+            "Coordinación ✔️ — siguiente: Previsión",
+            "Previsión ✔️ — siguiente: Puntualidad",
+            "Puntualidad ✔️ — siguiente: Flexibilidad",
+            "Flexibilidad ✔️ — siguiente: Sistematización",
+            "¡Ruta completada — listo para MINUME XVI – SGL!"
+        ];
+
+        function updateScore(points) {
+            totalScore += points;
+            document.getElementById('currentScore').textContent = totalScore;
+            document.getElementById('currentScore').parentElement.classList.add('score-bounce');
+            setTimeout(() => {
+                document.getElementById('currentScore').parentElement.classList.remove('score-bounce');
+            }, 500);
+        }
+
+        function updateProgress() {
+            const level = levels[currentLevelIndex];
+            const progress = ((level.id) / 7) * 100;
+            document.getElementById('currentLevel').textContent = level.id;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressPercent').textContent = `${Math.round(progress)}%`;
+            document.getElementById('progressMessage').textContent = progressMessages[currentLevelIndex];
+        }
 
         function renderLevel(level) {
             const content = document.getElementById('gameContent');
             content.innerHTML = `
-                <div class="text-center mb-8">
-                    <div class="inline-block ${level.bgColor} rounded-full p-6 mb-4 pulse-icon">
-                        <span class="text-6xl">${level.icon}</span>
+                <div class="text-center mb-6">
+                    <div class="inline-block ${level.bgColor} rounded-full p-4 mb-4 pulse-icon">
+                        <span class="text-4xl md:text-5xl">${level.icon}</span>
                     </div>
-                    <h3 class="text-3xl font-bold ${level.color} mb-2">${level.title}</h3>
+                    <h3 class="text-2xl md:text-3xl font-bold ${level.color} mb-2">${level.title}</h3>
+                    <p class="text-gray-700 text-base md:text-lg leading-relaxed">${level.description}</p>
                 </div>
-
-                <div class="mb-8">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">¿Qué es ${level.title}?</h4>
-                    <p class="text-gray-700 leading-relaxed mb-6">${level.description}</p>
-
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Ejemplo en MINUME XVI:</h4>
-                    <div class="bg-gray-50 rounded-lg p-4 border-l-4 border-indigo-500">
-                        <p class="text-gray-700 leading-relaxed">${level.example}</p>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Pon a Prueba tu Comprensión:</h4>
-                    <p class="text-gray-700 mb-6 font-medium">${level.question}</p>
-
+                
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">🎯 Situación:</h4>
+                    <p class="text-gray-700 mb-6 font-medium text-base md:text-lg leading-relaxed">${level.question}</p>
+                    
                     <div class="space-y-3">
                         ${level.options.map((option, index) => `
-                            <button class="option-btn w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200"
-                                    data-index="${index}">
-                                <span class="font-medium">${String.fromCharCode(65 + index)}.</span> ${option}
+                            <button class="option-btn w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-200 focus:border-yellow-400 focus:bg-yellow-50" 
+                                    data-index="${index}" tabindex="0">
+                                <span class="font-bold text-indigo-600">${String.fromCharCode(65 + index)}.</span> <span class="ml-2">${option}</span>
                             </button>
                         `).join('')}
                     </div>
                 </div>
             `;
 
-            document.querySelectorAll('.option-btn').forEach(btn => {
-                btn.addEventListener('click', function () {
+            // Add event listeners to option buttons
+            document.querySelectorAll('.option-btn').forEach((btn, index) => {
+                btn.addEventListener('click', function() {
                     selectAnswer(parseInt(this.dataset.index));
+                });
+                
+                btn.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectAnswer(parseInt(this.dataset.index));
+                    }
                 });
             });
 
-            document.getElementById('currentLevel').textContent = level.id;
-            document.getElementById('progressBar').style.width = `${(level.id / 7) * 100}%`;
+            updateProgress();
+            hideFeedback();
         }
 
         function selectAnswer(answerIndex) {
             selectedAnswer = answerIndex;
             const currentLevel = levels[currentLevelIndex];
             const buttons = document.querySelectorAll('.option-btn');
-
+            
+            // Disable all buttons
             buttons.forEach(btn => {
-                btn.classList.remove('bg-green-600', 'bg-red-500', 'text-white', 'border-green-600', 'border-red-500');
-                btn.classList.add('border-gray-200');
+                btn.disabled = true;
+                btn.classList.remove('hover:border-indigo-300', 'hover:bg-indigo-50');
             });
 
+            // Highlight selected answer
             const selectedBtn = buttons[answerIndex];
             if (answerIndex === currentLevel.correct) {
                 selectedBtn.classList.add('bg-green-600', 'text-white', 'border-green-600', 'correct-answer');
-                document.getElementById('nextBtn').disabled = false;
+                levelScore = 14;
+                updateScore(levelScore);
+                showFeedback(true, currentLevel.explanation);
             } else {
                 selectedBtn.classList.add('bg-red-500', 'text-white', 'border-red-500');
                 buttons[currentLevel.correct].classList.add('bg-green-600', 'text-white', 'border-green-600');
-                setTimeout(() => {
-                    document.getElementById('nextBtn').disabled = false;
-                }, 1000);
+                levelScore = 0;
+                showFeedback(false, currentLevel.explanation);
             }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const feedbackSection = document.getElementById('feedbackSection');
+            const feedbackContent = document.getElementById('feedbackContent');
+            
+            if (isCorrect) {
+                feedbackContent.innerHTML = `
+                    <div class="text-green-600">
+                        <div class="text-4xl mb-2">✅</div>
+                        <h4 class="text-xl font-bold mb-2">¡Correcto! +${levelScore} puntos</h4>
+                        <p class="text-gray-700">${explanation}</p>
+                    </div>
+                `;
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('retryBtn').classList.add('hidden');
+            } else {
+                feedbackContent.innerHTML = `
+                    <div class="text-red-600">
+                        <div class="text-4xl mb-2">❌</div>
+                        <h4 class="text-xl font-bold mb-2">Incorrecto</h4>
+                        <p class="text-gray-700 mb-4">${explanation}</p>
+                    </div>
+                `;
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('retryBtn').classList.remove('hidden');
+            }
+            
+            feedbackSection.classList.remove('hidden');
+            feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideFeedback() {
+            document.getElementById('feedbackSection').classList.add('hidden');
+            document.getElementById('retryBtn').classList.add('hidden');
         }
 
         function nextLevel() {
@@ -259,6 +387,8 @@
             document.getElementById('nextBtn').disabled = true;
 
             if (currentLevelIndex >= levels.length) {
+                // Bonus points for completion
+                updateScore(2);
                 showCongratulations();
             } else {
                 document.getElementById('gameContent').classList.remove('fade-in');
@@ -269,52 +399,100 @@
             }
         }
 
+        function retryLevel() {
+            selectedAnswer = null;
+            document.getElementById('nextBtn').disabled = true;
+            hideFeedback();
+            
+            // Re-enable buttons
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('bg-green-600', 'bg-red-500', 'text-white', 'border-green-600', 'border-red-500');
+                btn.classList.add('border-gray-200', 'hover:border-indigo-300', 'hover:bg-indigo-50');
+            });
+        }
+
         function showCongratulations() {
             const content = document.getElementById('gameContent');
+            let medal, message, recommendation;
+            
+            if (totalScore >= 80) {
+                medal = "🥇";
+                message = "¡Listo para SGL!";
+                recommendation = "Dominas todos los principios logísticos. ¡Estás preparado para liderar en MINUME XVI!";
+            } else if (totalScore >= 60) {
+                medal = "🥈";
+                message = "¡Buen trabajo!";
+                recommendation = "Cerca del objetivo — repasa Flexibilidad y Previsión para perfeccionar tu comprensión.";
+            } else {
+                medal = "🥉";
+                message = "¡Sigue practicando!";
+                recommendation = "Revisa los principios fundamentales y vuelve a intentarlo. ¡La práctica hace al maestro!";
+            }
+            
             content.innerHTML = `
                 <div class="text-center">
                     <div class="mb-8">
                         <div class="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-8 mb-6 pulse-icon">
-                            <span class="text-8xl">🏆</span>
+                            <span class="text-6xl md:text-8xl">${medal}</span>
                         </div>
-                        <h3 class="text-4xl font-bold text-indigo-900 mb-4">¡Felicitaciones!</h3>
-                        <h4 class="text-2xl font-semibold text-indigo-700 mb-6">Has completado tu comprensión de los principios</h4>
-                        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl p-6 mb-8">
-                            <h5 class="text-xl font-bold mb-2">🎉 ¡Listo para MINUME XVI! 🎉</h5>
-                            <p class="text-lg">Has completado tu comprensión de los principios logísticos que sostienen la dimensión académica del evento. ¡Es momento de poner en práctica lo aprendido!</p>
+                        <h3 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-4">¡Ruta Completada!</h3>
+                        <h4 class="text-xl md:text-2xl font-semibold text-indigo-700 mb-4">${message}</h4>
+                        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl p-6 mb-6">
+                            <h5 class="text-lg md:text-xl font-bold mb-2">🏁 Puntuación Final: ${totalScore}/100</h5>
+                            <p class="text-base md:text-lg">${recommendation}</p>
                         </div>
                     </div>
-
+                    
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                         ${levels.map(level => `
                             <div class="bg-gray-50 rounded-lg p-4 text-center">
-                                <div class="text-3xl mb-2">${level.icon}</div>
-                                <div class="text-sm font-semibold ${level.color}">${level.title}</div>
-                                <div class="text-xs text-green-600 mt-1">✓ Dominado</div>
+                                <div class="text-2xl md:text-3xl mb-2">${level.icon}</div>
+                                <div class="text-xs md:text-sm font-semibold ${level.color}">${level.title}</div>
+                                <div class="text-xs text-green-600 mt-1">✓ Completado</div>
                             </div>
                         `).join('')}
                     </div>
-
+                    
                     <button onclick="restartGame()" class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105">
-                        Jugar de Nuevo
+                        🔄 Nueva Ruta
                     </button>
                 </div>
             `;
-
+            
             document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('retryBtn').style.display = 'none';
             document.getElementById('progressBar').style.width = '100%';
+            document.getElementById('progressPercent').textContent = '100%';
+            document.getElementById('progressMessage').textContent = progressMessages[7];
         }
 
         function restartGame() {
             currentLevelIndex = 0;
             selectedAnswer = null;
+            totalScore = 0;
+            levelScore = 0;
+            document.getElementById('currentScore').textContent = '0';
             document.getElementById('nextBtn').style.display = 'block';
             document.getElementById('nextBtn').disabled = true;
+            document.getElementById('retryBtn').style.display = 'block';
             renderLevel(levels[0]);
         }
 
+        // Event listeners
         document.getElementById('nextBtn').addEventListener('click', nextLevel);
+        document.getElementById('retryBtn').addEventListener('click', retryLevel);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('nextBtn').disabled) {
+                nextLevel();
+            }
+        });
+
+        // Initialize game
         renderLevel(levels[0]);
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'977f76e8954caf76',t:'MTc1NjY3NDEwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+
