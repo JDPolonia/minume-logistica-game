@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién lo hace? SGL F1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'f1-red': '#FF0000',
+                        'f1-black': '#000000',
+                        'f1-gray': '#2B2B2B',
+                        'f1-white': '#FFFFFF'
+                    },
+                    fontFamily: {
+                        'montserrat': ['Montserrat', 'sans-serif'],
+                        'inter': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .checkered-flag {
+            background: linear-gradient(45deg, #000 25%, #fff 25%, #fff 50%, #000 50%, #000 75%, #fff 75%);
+            background-size: 20px 20px;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FF0000;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+        }
+        
+        .red-light { background: #FF0000; }
+        .yellow-light { background: #FFD700; }
+        .green-light { background: #00FF00; }
+    </style>
+</head>
+<body class="bg-f1-white font-inter">
+    <!-- Pantalla Inicio -->
+    <div id="inicio-screen" class="min-h-screen flex flex-col fade-in">
+        <!-- Cabecera con bandera -->
+        <div class="checkered-flag h-16 w-full"></div>
+        
+        <div class="flex-1 flex flex-col items-center justify-center px-8">
+            <div class="text-center mb-12">
+                <div class="flex items-center justify-center mb-4">
+                    <h1 class="font-montserrat text-2xl font-bold text-f1-black mr-4">¿Quién lo hace? SGL F1</h1>
+                    <div class="flex flex-col">
+                        <div class="traffic-light red-light"></div>
+                        <div class="traffic-light yellow-light"></div>
+                        <div class="traffic-light green-light"></div>
+                    </div>
+                </div>
+                <p class="font-inter text-lg text-f1-gray">Juego de roles logísticos</p>
+            </div>
+            
+            <div class="space-y-4 mb-12">
+                <button onclick="showScreen('juego-screen')" class="bg-f1-red text-f1-white font-inter text-sm font-medium uppercase px-8 py-3 rounded hover:bg-red-700 transition-colors">
+                    JUGAR
+                </button>
+            </div>
+            
+            <p class="font-inter text-sm text-f1-gray text-center">
+                10 escenarios. Cada acierto vale 10 puntos.
+            </p>
+        </div>
+    </div>
+
+
+
+    <!-- Pantalla Juego -->
+    <div id="juego-screen" class="min-h-screen flex flex-col fade-in hidden">
+        <div class="checkered-flag h-16 w-full"></div>
+        
+        <!-- Cabecera del juego -->
+        <div class="bg-f1-gray text-f1-white p-4 flex justify-between items-center">
+            <span id="escenario-contador" class="font-inter text-sm font-medium">Escenario 1 de 10</span>
+            <span id="timer-display" class="font-inter text-sm font-medium">00:25</span>
+        </div>
+        
+        <div class="flex-1 p-8 max-w-4xl mx-auto">
+            <!-- Caso -->
+            <div class="mb-8">
+                <h3 id="caso-titulo" class="font-montserrat text-lg font-bold text-f1-black mb-4">Crisis múltiple en llegada</h3>
+                <p id="caso-texto" class="font-inter text-sm text-f1-gray leading-relaxed">Un grupo de 15 delegados llega al aeropuerto sin sus credenciales pre-impresas debido a un error del sistema.</p>
+            </div>
+            
+            <!-- Opciones de respuesta -->
+            <div id="opciones-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <!-- Las opciones se generan dinámicamente -->
+            </div>
+            
+            <!-- Zona de feedback -->
+            <div id="feedback-zone" class="hidden mb-8 p-4 rounded border-l-4">
+                <p id="feedback-text" class="font-inter text-sm"></p>
+            </div>
+            
+            <!-- Botones de control -->
+            <div class="flex flex-wrap gap-4">
+                <button id="btn-siguiente" onclick="siguienteEscenario()" class="hidden bg-f1-red text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-red-700 transition-colors">
+                    SIGUIENTE
+                </button>
+
+                <button id="btn-ver-solucion" onclick="verSolucion()" class="hidden bg-f1-gray text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-gray-700 transition-colors">
+                    VER SOLUCIÓN
+                </button>
+                <button onclick="showScreen('inicio-screen')" class="bg-f1-gray text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-gray-700 transition-colors">
+                    VOLVER AL INICIO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Marcador -->
+    <div id="marcador-screen" class="min-h-screen flex flex-col fade-in hidden">
+        <div class="checkered-flag h-16 w-full"></div>
+        
+        <div class="flex-1 p-8 max-w-4xl mx-auto">
+            <h2 class="font-montserrat text-2xl font-bold text-f1-black mb-8">Marcador</h2>
+            
+            <div class="bg-f1-white border border-f1-gray rounded-lg overflow-hidden mb-6">
+                <table class="w-full">
+                    <thead class="bg-f1-gray text-f1-white">
+                        <tr>
+                            <th class="font-inter text-sm font-medium uppercase px-4 py-3 text-left">Jugador/Equipo</th>
+                            <th class="font-inter text-sm font-medium uppercase px-4 py-3 text-center">Puntos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marcador-tabla">
+                        <!-- Se genera dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <p id="preguntas-jugadas" class="font-inter text-sm text-f1-gray mb-6">Preguntas jugadas: 0 de 10</p>
+            
+            <div class="flex flex-wrap gap-4">
+                <button onclick="resetPuntajes()" class="bg-f1-red text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-red-700 transition-colors">
+                    RESET PUNTAJES
+                </button>
+                <button onclick="insertarMarcador()" class="bg-f1-gray text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-gray-700 transition-colors">
+                    INSERTAR MARCADOR EN EL DISEÑO
+                </button>
+                <button onclick="showScreen('juego-screen')" class="bg-f1-gray text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-gray-700 transition-colors">
+                    VOLVER AL JUEGO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla Final -->
+    <div id="final-screen" class="min-h-screen flex flex-col fade-in hidden">
+        <div class="checkered-flag h-32 w-full"></div>
+        
+        <div class="flex-1 p-8 max-w-4xl mx-auto text-center">
+            <h2 class="font-montserrat text-2xl font-bold text-f1-black mb-4">🏁 Resultado Final 🏁</h2>
+            
+            <div id="resultado-final" class="mb-8">
+                <!-- Se genera dinámicamente -->
+            </div>
+            
+            <!-- Podio -->
+            <div class="flex justify-center items-end space-x-4 mb-8">
+                <div class="text-center">
+                    <div class="bg-gray-400 text-f1-white font-montserrat text-lg font-bold w-16 h-20 flex items-center justify-center rounded-t">2</div>
+                    <p id="segundo-lugar" class="font-inter text-sm mt-2">-</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-f1-red text-f1-white font-montserrat text-lg font-bold w-16 h-24 flex items-center justify-center rounded-t">1</div>
+                    <p id="primer-lugar" class="font-inter text-sm mt-2">-</p>
+                </div>
+                <div class="text-center">
+                    <div class="bg-yellow-600 text-f1-white font-montserrat text-lg font-bold w-16 h-16 flex items-center justify-center rounded-t">3</div>
+                    <p id="tercer-lugar" class="font-inter text-sm mt-2">-</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="reiniciarJuego()" class="bg-f1-red text-f1-white font-inter text-sm font-medium uppercase px-6 py-2 rounded hover:bg-red-700 transition-colors">
+                    VOLVER AL INICIO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del juego
+        const gameData = {
+            roles: ["Asistencia","Bienvenida y Acreditación","Eventos","Seguridad","Bienestar","Tecnología de la Información","Maestros de Ceremonia"],
+            scenarios: [
+                {
+                    id: 1,
+                    titulo: "Delegados llegan sin sus gafetes",
+                    caso: "Un grupo de 15 delegados de Santiago llega al evento, pero perdieron sus gafetes durante el viaje en autobús. No tienen identificación para ingresar al evento y participar en la ceremonia de apertura que comienza en 1 hora.",
+                    opciones: ["Asistencia", "Bienvenida y Acreditación", "Eventos", "Tecnología de la Información"],
+                    correcta: "Bienvenida y Acreditación",
+                    feedbackCorrecto: "Bienvenida y Acreditación gestiona las acreditaciones y validación de registros. Debe reimprimir los gafetes y validar manualmente los datos de estos delegados.",
+                    feedbackIncorrecto: "Aunque requiere coordinación, es fundamentalmente un problema de acreditación y validación de registros que maneja Bienvenida y Acreditación."
+                },
+                {
+                    id: 2,
+                    titulo: "Delegada muy nerviosa antes de su primera intervención",
+                    caso: "Una delegada de 15 años está muy nerviosa antes de su primera participación en el Consejo de Seguridad simulado. Está temblando, dice que no puede hablar, y sus compañeros de delegación están preocupados. La sesión comienza en 15 minutos y ella tiene una intervención importante programada.",
+                    opciones: ["Bienestar", "Seguridad", "Maestros de Ceremonia", "Eventos"],
+                    correcta: "Bienestar",
+                    feedbackCorrecto: "Bienestar se encarga del acompañamiento emocional y manejo de situaciones de estrés y ansiedad. Debe tranquilizar a la delegada y darle técnicas para manejar los nervios.",
+                    feedbackIncorrecto: "Aunque afecta la participación en el evento, es fundamentalmente una situación emocional que requiere acompañamiento especializado de Bienestar."
+                },
+                {
+                    id: 3,
+                    titulo: "Error en el SIGEL impide registrar asistencia",
+                    caso: "El sistema SIGEL muestra un error y no permite registrar la asistencia de los delegados. Hay 80 delegados esperando para marcar su entrada a las sesiones matutinas, pero el sistema no responde y aparece un mensaje de error técnico.",
+                    opciones: ["Tecnología de la Información", "Eventos", "Bienvenida y Acreditación", "Asistencia"],
+                    correcta: "Tecnología de la Información",
+                    feedbackCorrecto: "TI gestiona el SIGEL y debe solucionar el error técnico del sistema o implementar un registro manual temporal mientras se restaura el funcionamiento.",
+                    feedbackIncorrecto: "Aunque afecta el registro de asistencia, es un problema técnico del sistema SIGEL que requiere solución inmediata de TI."
+                },
+                {
+                    id: 4,
+                    titulo: "Confusión en números de habitaciones del hotel",
+                    caso: "Hay confusión con los números de habitaciones en el hotel. Varios delegados tienen llaves con el mismo número de habitación y no saben cuál es la correcta. Son las 9 PM, están cansados después del primer día, y mañana tienen sesiones tempranas.",
+                    opciones: ["Seguridad", "Bienvenida y Acreditación", "Eventos", "Asistencia"],
+                    correcta: "Bienvenida y Acreditación",
+                    feedbackCorrecto: "Bienvenida y Acreditación gestiona la entrega de llaves y trazabilidad de alojamiento. Debe verificar las asignaciones correctas y entregar las llaves apropiadas a cada delegado.",
+                    feedbackIncorrecto: "Es un problema administrativo de asignación de alojamiento que debe resolver Bienvenida y Acreditación consultando los registros correctos."
+                },
+                {
+                    id: 5,
+                    titulo: "Delegados hacen ruido en el hotel durante la noche",
+                    caso: "Un grupo de delegados está haciendo mucho ruido en los pasillos del hotel a las 11 PM. Otros delegados se quejan de que no pueden dormir, y algunos profesores piden que se controle la situación para que todos puedan descansar antes de las sesiones del día siguiente.",
+                    opciones: ["Seguridad", "Eventos", "Bienestar", "Asistencia"],
+                    correcta: "Seguridad",
+                    feedbackCorrecto: "Seguridad maneja el control de accesos y orden. Debe hacer rondas en el hotel para mantener el orden nocturno, pidiendo a los delegados que respeten las horas de descanso.",
+                    feedbackIncorrecto: "Es una situación de orden y control nocturno que requiere intervención de Seguridad para mantener el ambiente apropiado para el descanso."
+                },
+                {
+                    id: 6,
+                    titulo: "Delegados no encuentran su aula de comité",
+                    caso: "Un grupo de 8 delegados no puede encontrar el aula donde se realizará su sesión de comité. Están dando vueltas por el edificio, ya llegaron 10 minutos tarde, y otros delegados les están preguntando dónde deben ir también.",
+                    opciones: ["Asistencia", "Seguridad", "Bienvenida y Acreditación", "Eventos"],
+                    correcta: "Asistencia",
+                    feedbackCorrecto: "Asistencia maneja el acompañamiento en ubicación de delegados y debe guiar a los delegados al aula correcta, además de verificar que la señalización esté clara.",
+                    feedbackIncorrecto: "Es un problema de orientación y ubicación de delegados que requiere el acompañamiento directo de Asistencia."
+                },
+                {
+                    id: 7,
+                    titulo: "Delegados necesitan medicamentos para alergias",
+                    caso: "Varios delegados reportan que olvidaron sus medicamentos para alergias en casa y están empezando a sentir molestias. Algunos tienen congestión nasal, otros picazón en los ojos, y necesitan medicamentos básicos para poder participar cómodamente en las sesiones.",
+                    opciones: ["Bienestar", "Bienvenida y Acreditación", "Seguridad", "Asistencia"],
+                    correcta: "Bienestar",
+                    feedbackCorrecto: "Bienestar maneja los insumos de salud y medicamentos básicos. Debe evaluar las necesidades de los delegados y proporcionar medicamentos apropiados para alergias.",
+                    feedbackIncorrecto: "Es una situación de salud que requiere evaluación y provisión de medicamentos básicos por parte de Bienestar."
+                },
+                {
+                    id: 8,
+                    titulo: "Falta material de papelería en las aulas",
+                    caso: "En varias aulas de comités se acabó el papel, los marcadores están secos y no hay suficientes bolígrafos para todos los delegados. Los delegados necesitan tomar notas y hacer borradores de resoluciones, pero no tienen los materiales necesarios.",
+                    opciones: ["Eventos", "Bienestar", "Asistencia", "Bienvenida y Acreditación"],
+                    correcta: "Asistencia",
+                    feedbackCorrecto: "Asistencia maneja el suministro de materiales y papelería. Debe conseguir y distribuir papel, marcadores y bolígrafos a las aulas que los necesiten.",
+                    feedbackIncorrecto: "Es un problema logístico de suministro de materiales que corresponde a Asistencia resolver rápidamente."
+                },
+                {
+                    id: 9,
+                    titulo: "Se acabó el agua en los dispensadores",
+                    caso: "Los dispensadores de agua en las áreas comunes se han quedado vacíos y los delegados están pidiendo agua, especialmente después de las sesiones intensas de comités. Hace calor y varios delegados se ven deshidratados.",
+                    opciones: ["Seguridad", "Asistencia", "Eventos", "Bienestar"],
+                    correcta: "Asistencia",
+                    feedbackCorrecto: "Asistencia maneja el suministro de insumos básicos como agua. Debe coordinar el reabastecimiento inmediato de los dispensadores y asegurar hidratación para los delegados.",
+                    feedbackIncorrecto: "Es un problema logístico de suministro básico que corresponde a Asistencia resolver para mantener el bienestar de los participantes."
+                },
+                {
+                    id: 10,
+                    titulo: "Varios delegados se sienten mal del estómago después del almuerzo",
+                    caso: "Después del almuerzo, 8 delegados reportan que se sienten mal del estómago. No es grave, pero están incómodos y preocupados. Algunos piden medicamentos para el malestar y otros quieren llamar a sus padres. Las sesiones de la tarde están por comenzar.",
+                    opciones: ["Bienestar", "Seguridad", "Eventos", "Asistencia"],
+                    correcta: "Bienestar",
+                    feedbackCorrecto: "Bienestar maneja la atención física y los insumos de salud. Debe evaluar a los delegados, proporcionar medicamentos básicos si es apropiado y decidir si pueden continuar participando.",
+                    feedbackIncorrecto: "Es una situación de salud que requiere evaluación y atención de Bienestar para determinar el mejor curso de acción para los delegados afectados."
+                }
+            ]
+        };
+
+        // Estado del juego
+        let gameState = {
+            currentScenario: 0,
+            scores: { "Jugador 1": 0 },
+            config: {
+                modo: 'individual',
+                numEquipos: 2,
+                nombresEquipos: ['Equipo 1', 'Equipo 2'],
+                timerActivo: true,
+                sonidoActivo: true
+            },
+            timer: null,
+            timeLeft: 25
+        };
+
+        // Funciones de navegación
+        function showScreen(screenId) {
+            document.querySelectorAll('[id$="-screen"]').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            document.getElementById(screenId).classList.add('fade-in');
+            
+            if (screenId === 'juego-screen') {
+                loadCurrentScenario();
+            } else if (screenId === 'marcador-screen') {
+                updateMarcador();
+            }
+        }
+
+        // Configuración
+        document.addEventListener('DOMContentLoaded', function() {
+            // Listener para modo de juego
+            document.querySelectorAll('input[name="modo"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const equiposConfig = document.getElementById('equipos-config');
+                    if (this.value === 'equipos') {
+                        equiposConfig.classList.remove('hidden');
+                    } else {
+                        equiposConfig.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Listener para número de equipos
+            document.getElementById('num-equipos').addEventListener('change', function() {
+                updateNombresEquipos(parseInt(this.value));
+            });
+        });
+
+        function updateNombresEquipos(num) {
+            const container = document.getElementById('nombres-equipos');
+            container.innerHTML = '';
+            for (let i = 1; i <= num; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = `Equipo ${i}`;
+                input.className = 'w-full border border-f1-gray rounded px-3 py-2 font-inter text-sm';
+                container.appendChild(input);
+            }
+        }
+
+        function guardarConfiguracion() {
+            const modo = document.querySelector('input[name="modo"]:checked').value;
+            const numEquipos = parseInt(document.getElementById('num-equipos').value);
+            const timerActivo = document.getElementById('timer-activo').checked;
+            const sonidoActivo = document.getElementById('sonido-activo').checked;
+            
+            gameState.config = {
+                modo,
+                numEquipos,
+                nombresEquipos: [],
+                timerActivo,
+                sonidoActivo
+            };
+
+            if (modo === 'equipos') {
+                const inputs = document.querySelectorAll('#nombres-equipos input');
+                inputs.forEach(input => {
+                    gameState.config.nombresEquipos.push(input.value);
+                });
+            } else {
+                gameState.config.nombresEquipos = ['Jugador 1'];
+            }
+
+            // Reiniciar scores
+            gameState.scores = {};
+            gameState.config.nombresEquipos.forEach(nombre => {
+                gameState.scores[nombre] = 0;
+            });
+
+            showScreen('inicio-screen');
+        }
+
+        // Lógica del juego
+        function loadCurrentScenario() {
+            const scenario = gameData.scenarios[gameState.currentScenario];
+            
+            document.getElementById('escenario-contador').textContent = `Escenario ${gameState.currentScenario + 1} de 10`;
+            document.getElementById('caso-titulo').textContent = scenario.titulo;
+            document.getElementById('caso-texto').textContent = scenario.caso;
+            
+            // Generar opciones
+            const container = document.getElementById('opciones-container');
+            container.innerHTML = '';
+            
+            scenario.opciones.forEach(opcion => {
+                const button = document.createElement('button');
+                button.className = 'bg-f1-white border-2 border-f1-gray text-f1-black font-inter text-sm p-4 rounded hover:border-f1-red transition-colors text-left';
+                button.textContent = opcion;
+                button.onclick = () => selectAnswer(opcion);
+                container.appendChild(button);
+            });
+
+            // Ocultar feedback y botones
+            document.getElementById('feedback-zone').classList.add('hidden');
+            document.getElementById('btn-siguiente').classList.add('hidden');
+            document.getElementById('btn-ver-solucion').classList.add('hidden');
+
+            // Iniciar timer si está activo
+            if (gameState.config.timerActivo) {
+                startTimer();
+            } else {
+                document.getElementById('timer-display').style.display = 'none';
+            }
+        }
+
+        function startTimer() {
+            gameState.timeLeft = 25;
+            updateTimerDisplay();
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                updateTimerDisplay();
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    // Mostrar botón ver solución cuando se acaba el tiempo
+                    document.getElementById('btn-ver-solucion').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(gameState.timeLeft / 60);
+            const seconds = gameState.timeLeft % 60;
+            document.getElementById('timer-display').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function selectAnswer(answer) {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+
+            const scenario = gameData.scenarios[gameState.currentScenario];
+            const feedbackZone = document.getElementById('feedback-zone');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            // Deshabilitar botones de opciones
+            document.querySelectorAll('#opciones-container button').forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            });
+
+            if (answer === scenario.correcta) {
+                // Respuesta correcta
+                feedbackZone.className = 'mb-8 p-4 rounded border-l-4 border-green-500 bg-green-50';
+                feedbackText.textContent = scenario.feedbackCorrecto;
+                
+                // Sumar puntos (solo al primer jugador por simplicidad en esta demo)
+                const firstPlayer = Object.keys(gameState.scores)[0];
+                gameState.scores[firstPlayer] += 10;
+                
+                // Mostrar confeti
+                createConfetti();
+                
+                document.getElementById('btn-siguiente').classList.remove('hidden');
+            } else {
+                // Respuesta incorrecta - no se suman puntos
+                feedbackZone.className = 'mb-8 p-4 rounded border-l-4 border-red-500 bg-red-50';
+                feedbackText.textContent = scenario.feedbackIncorrecto;
+                
+                document.getElementById('btn-ver-solucion').classList.remove('hidden');
+                document.getElementById('btn-siguiente').classList.remove('hidden');
+            }
+            
+            feedbackZone.classList.remove('hidden');
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = ['#FF0000', '#FFD700', '#00FF00'][Math.floor(Math.random() * 3)];
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 50);
+            }
+        }
+
+
+
+        function verSolucion() {
+            const scenario = gameData.scenarios[gameState.currentScenario];
+            const feedbackZone = document.getElementById('feedback-zone');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            feedbackZone.className = 'mb-8 p-4 rounded border-l-4 border-blue-500 bg-blue-50';
+            feedbackText.textContent = `Respuesta correcta: ${scenario.correcta}. ${scenario.feedbackCorrecto}`;
+            
+            document.getElementById('btn-siguiente').classList.remove('hidden');
+            document.getElementById('btn-ver-solucion').classList.add('hidden');
+        }
+
+        function siguienteEscenario() {
+            gameState.currentScenario++;
+            
+            if (gameState.currentScenario >= gameData.scenarios.length) {
+                showScreen('final-screen');
+                loadFinalScreen();
+            } else {
+                loadCurrentScenario();
+            }
+        }
+
+        // Marcador
+        function updateMarcador() {
+            const tabla = document.getElementById('marcador-tabla');
+            tabla.innerHTML = '';
+            
+            Object.entries(gameState.scores).forEach(([nombre, puntos]) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-f1-gray';
+                row.innerHTML = `
+                    <td class="font-inter text-sm px-4 py-3">${nombre}</td>
+                    <td class="font-inter text-sm px-4 py-3 text-center font-medium">${puntos}</td>
+                `;
+                tabla.appendChild(row);
+            });
+            
+            document.getElementById('preguntas-jugadas').textContent = 
+                `Preguntas jugadas: ${gameState.currentScenario} de 10`;
+        }
+
+        function resetPuntajes() {
+            Object.keys(gameState.scores).forEach(key => {
+                gameState.scores[key] = 0;
+            });
+            updateMarcador();
+        }
+
+        function insertarMarcador() {
+            const lider = Object.entries(gameState.scores).reduce((a, b) => a[1] > b[1] ? a : b);
+            alert(`Marcador insertado: ${lider[0]} lidera con ${lider[1]} puntos`);
+        }
+
+        // Pantalla final
+        function loadFinalScreen() {
+            const resultadoDiv = document.getElementById('resultado-final');
+            const sortedScores = Object.entries(gameState.scores).sort((a, b) => b[1] - a[1]);
+            const puntos = sortedScores[0][1];
+            
+            let mensaje = '';
+            if (puntos === 100) {
+                mensaje = '🏆 ¡PRIMER LUGAR! Excelente conocimiento de la SGL';
+            } else if (puntos >= 80) {
+                mensaje = '🥈 ¡SEGUNDO LUGAR! Muy buen manejo de los roles';
+            } else if (puntos >= 70) {
+                mensaje = '🥉 ¡TERCER LUGAR! Buen entendimiento general';
+            } else {
+                mensaje = '📚 Necesitas repasar más. ¡Inténtalo de nuevo!';
+            }
+            
+            let html = `<div class="space-y-4 mb-6">
+                <h3 class="font-montserrat text-xl font-bold text-f1-black">${mensaje}</h3>`;
+            sortedScores.forEach(([nombre, puntos]) => {
+                html += `<p class="font-inter text-sm"><strong>${nombre}:</strong> ${puntos} puntos</p>`;
+            });
+            html += '</div>';
+            
+            resultadoDiv.innerHTML = html;
+            
+            // Actualizar podio solo si hay buenos puntajes
+            if (puntos >= 70) {
+                if (sortedScores[0]) document.getElementById('primer-lugar').textContent = sortedScores[0][0];
+                if (sortedScores[1]) document.getElementById('segundo-lugar').textContent = sortedScores[1][0];
+                if (sortedScores[2]) document.getElementById('tercer-lugar').textContent = sortedScores[2][0];
+            } else {
+                document.getElementById('primer-lugar').textContent = '-';
+                document.getElementById('segundo-lugar').textContent = '-';
+                document.getElementById('tercer-lugar').textContent = '-';
+            }
+        }
+
+        function insertarResultado() {
+            const ganador = Object.entries(gameState.scores).reduce((a, b) => a[1] > b[1] ? a : b);
+            alert(`Resultado insertado: ¡${ganador[0]} ganó con ${ganador[1]} puntos!`);
+        }
+
+        function reiniciarJuego() {
+            gameState.currentScenario = 0;
+            Object.keys(gameState.scores).forEach(key => {
+                gameState.scores[key] = 0;
+            });
+            showScreen('inicio-screen');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'979149a4143df49f',t:'MTc1Njg2MDk5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
